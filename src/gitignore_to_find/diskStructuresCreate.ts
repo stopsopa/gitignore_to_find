@@ -44,6 +44,16 @@ export default async function diskStructuresCreate(
 
   for (const item of list) {
     const filePath = path.join(targetDir, item);
+
+    if (item.endsWith("/")) {
+      try {
+        await fs.mkdir(filePath, { recursive: true });
+      } catch (error) {
+        throw th(`Failed to create directory: ${filePath}, error: ${String(error)}`);
+      }
+      continue;
+    }
+
     const dirPath = path.dirname(filePath);
 
     // item is always path to file, we have to make sure directory exist for that file and only then create a file

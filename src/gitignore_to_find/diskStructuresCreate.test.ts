@@ -68,6 +68,37 @@ blocked_file.txt/subdir/file2.txt
     );
   });
 
+  await t.test("creates directory when item ends with slash", async () => {
+    await diskStructuresEmptyDir(testDir, true);
+    const list = `
+just_dir/
+just_dir/subdir/
+`;
+    await diskStructuresCreate(testDir, list);
+    
+    const stats1 = await fs.stat(path.join(testDir, "just_dir"));
+    assert.strictEqual(stats1.isDirectory(), true);
+    
+    const stats2 = await fs.stat(path.join(testDir, "just_dir/subdir"));
+    assert.strictEqual(stats2.isDirectory(), true);
+  });
+
+  await t.test("throws when trailing slash directory cannot be created", async () => {
+    await diskStructuresEmptyDir(testDir, true);
+    const list = `
+blocked_dir.txt
+blocked_dir.txt/subdir/
+`;
+    // Set up collision for the directory
+    await fs.mkdir(testDir, { recursive: true });
+    await fs.writeFile(path.join(testDir, "blocked_dir.txt"), "text");
+
+    await assert.rejects(
+      () => diskStructuresCreate(testDir, list),
+      (err: any) => err.message.includes(`Failed to create directory:`) && err.message.includes(`blocked_dir.txt/subdir/`)
+    );
+  });
+
   await t.test("cleanup", async () => {
     await diskStructuresEmptyDir(testDir, true);
   });
