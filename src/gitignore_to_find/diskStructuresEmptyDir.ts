@@ -3,7 +3,7 @@ import path from 'path';
 
 const th = (msg: string) => new Error(`diskStructuresEmptyDir.ts error: ${msg}`);
 
-export default async function diskStructuresEmptyDir(dirPath: string) {
+export default async function diskStructuresEmptyDir(dirPath: string, removeItself = false) {
   let stats;
   try {
     stats = await fs.stat(dirPath);
@@ -14,6 +14,22 @@ export default async function diskStructuresEmptyDir(dirPath: string) {
 
   if (!stats.isDirectory()) {
     throw th(`Provided path is not a directory: ${dirPath}`);
+  }
+
+  if (removeItself) {
+    try {
+      await fs.rm(dirPath, { recursive: true, force: true });
+    } catch (error) {
+      throw th(`Failed to remove directory ${dirPath}: ${String(error)}`);
+    }
+    
+    try {
+      await fs.stat(dirPath);
+      return false; // Path still exists
+    } catch (error) {
+      // Path doesn't exist, successful removal
+      return true;
+    }
   }
 
   const files = await fs.readdir(dirPath);

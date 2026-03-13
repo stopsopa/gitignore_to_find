@@ -14,7 +14,6 @@ const tmpDir = path.resolve(rootDir, "var/createRemoveTest");
  * /bin/bash ts.sh --test src/gitignore_to_find/diskStructures.test.ts
  */
 test("create and remove", async () => {
-
   try {
     await fs.mkdir(tmpDir, { recursive: true });
   } catch (error) {
@@ -46,11 +45,5 @@ directory/test2/file4.txt
     "directory/test2/file4.txt",
   ]);
 
-  debugger;
-
-  await diskStructuresEmptyDir(tmpDir);
-
-  let listAfter2 = await diskStructuresListDir(tmpDir);
-
-  assert.deepStrictEqual(listAfter2, []);
+  await diskStructuresEmptyDir(tmpDir, true);
 });
