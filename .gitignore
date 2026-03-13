@@ -1,0 +1,9 @@
+node_modules
+/coverage/
+/.npm-cache/
+/var/
+/node.config.generated.json
+/src/gitignore_to_find/*.js
+/gitignoreToFind.js
+/cmd.js
+/gitignore.js

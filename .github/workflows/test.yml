@@ -1,0 +1,64 @@
+name: Test and Build
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+        cache: "yarn"
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Run tests
+      env:
+        PROJECT_NAME: gitignore_to_find
+        PORT: 3000
+        HOST: localhost
+      run: /bin/bash ts.sh --test
+
+    - name: Build Demo Page (Transpile TS to JS)
+      run: |
+        # Transpile all TS files in src to JS using esbuild and the local es.mjs script
+        # The es.mjs script also handles rewriting .ts imports to .js
+        find src/gitignore_to_find -name "*.ts" | NODE_OPTIONS="" node es.mjs
+        /bin/bash bundle.sh
+
+    - name: Cleanup for Release
+      if: github.ref == 'refs/heads/main'
+      run: /bin/bash .github/clean.sh
+
+    - name: Setup Pages
+      if: github.ref == 'refs/heads/main'
+      uses: actions/configure-pages@v5
+
+    - name: Upload artifact
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      if: github.ref == 'refs/heads/main'
+      uses: actions/deploy-pages@v4

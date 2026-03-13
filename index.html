@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gitignore to Find - AWS Dashboard Style</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap");
+
+      :root {
+        --aws-squid-ink: #232f3e;
+        --aws-orange: #ff9900;
+        --aws-orange-hover: #ec7211;
+        --aws-blue: #0073bb;
+        --aws-gray-100: #f2f3f3;
+        --aws-gray-200: #eaeded;
+        --aws-gray-300: #d5dbdb;
+        --aws-white: #ffffff;
+        --text-dark: #16191f;
+        --text-light: #545b64;
+        --border-radius: 2px;
+        --transition: all 0.2s ease;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Open Sans", sans-serif;
+        background-color: var(--aws-gray-200);
+        color: var(--text-dark);
+        line-height: 1.5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background-color: var(--aws-squid-ink);
+        color: var(--aws-white);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      header h1 {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
+      main {
+        flex: 1;
+        padding: 32px 24px;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .card {
+        background: var(--aws-white);
+        border: 1px solid var(--aws-gray-300);
+        border-radius: var(--border-radius);
+        padding: 24px;
+        box-shadow:
+          0 1px 1px 0 rgba(0, 28, 36, 0.1),
+          0 1px 1px 0 rgba(0, 28, 36, 0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+      }
+
+      .label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      label {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-dark);
+      }
+
+      .description {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-bottom: 4px;
+      }
+
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #879596;
+        border-radius: var(--border-radius);
+        font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        resize: vertical;
+        background-color: var(--aws-white);
+        transition: var(--transition);
+      }
+
+      #gitignore-input {
+        height: 200px;
+      }
+
+      #find-output {
+        height: 150px;
+      }
+
+      textarea:focus {
+        outline: none;
+        border-color: var(--aws-blue);
+        box-shadow: 0 0 0 1px var(--aws-blue);
+      }
+
+      textarea[readonly] {
+        background-color: var(--aws-gray-100);
+        cursor: default;
+      }
+
+      .button-bar {
+        padding-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        align-items: center;
+        border-top: 1px solid var(--aws-gray-200);
+      }
+
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 20px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+        border: 1px solid transparent;
+      }
+
+      .btn-primary {
+        background-color: var(--aws-orange);
+        color: var(--aws-squid-ink);
+        border-color: #a88734 #9c7e31 #846a29;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--aws-orange-hover);
+      }
+
+      .btn-secondary {
+        background-color: #f3f3f3;
+        border-color: #879596;
+        color: var(--text-dark);
+      }
+
+      .btn-secondary:hover {
+        background-color: var(--aws-gray-300);
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--aws-squid-ink);
+        color: white;
+        padding: 12px 24px;
+        border-radius: var(--border-radius);
+        font-size: 14px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .header-link {
+        margin-left: 20px;
+        color: var(--aws-white);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        opacity: 0.85;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 4px 10px;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+      }
+
+      .header-link:hover {
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: var(--aws-white);
+      }
+    </style>
+    <script
+      src="https://cdn.jsdelivr.net/gh/MarketingPipeline/GitHub-Ribbon-Web-Component/dist/github-ribbon-wc.min.js"
+      defer
+    ></script>
+    <script
+      type="module"
+      src="https://stopsopa.github.io/ace-editor-webcomponent/ace-web-component.js"
+      data-main-ace="https://stopsopa.github.io/ace-editor-webcomponent/noprettier/ace/ace-builds-1.43.4/src-min-noconflict/ace.js"
+    ></script>
+  </head>
+  <body>
+    <header>
+      <h1>.gitignore to find args</h1>
+      <a href="coverage/index.html" class="header-link">Coverage Report</a>
+    </header>
+
+    <main>
+      <div class="card">
+        <div class="input-group">
+          <div class="label-row">
+            <label for="gitignore-input">.gitignore Content</label>
+          </div>
+          <p class="description">
+            Enter your ignore patterns. Changes are processed instantly.
+          </p>
+          <textarea
+            id="gitignore-input"
+            spellcheck="false"
+            placeholder="node_modules/
+dist/
+*.log
+!important.log"
+          ></textarea>
+        </div>
+
+        <div class="input-group">
+          <div class="label-row">
+            <label for="find-output">Find Arguments (Full Width)</label>
+          </div>
+          <p class="description">
+            Resulting arguments for the <code>find</code> command.
+          </p>
+          <textarea
+            id="find-output"
+            spellcheck="false"
+            placeholder="find . [args]"
+          ></textarea>
+        </div>
+
+        <div class="button-bar">
+          <button id="reset-btn" class="btn-secondary">Reset</button>
+          <button id="copy-btn" class="btn-primary">Copy Find Command</button>
+        </div>
+        <div>   
+
+          <div class="label-row">
+            <label for="find-output">Native solution</label>
+          </div>
+          <ace-editor lang="sh">
+            <script type="ace">
+wget https://stopsopa.github.io/gitignore_to_find/gitignore.js            
+
+mkdir __gitignoretest
+cd __gitignoretest
+mkdir -p abc/def/ghi/
+touch abc/def/ghi/test.txt
+touch abc/def/ghi/test2.txt
+touch abc/def/test.txt
+touch abc/test.txt
+touch test.txt
+
+cat <<EEE > .myignore
+.myignore
+abc/def/
+!/abc/def/ghi/test2.txt
+EEE
+
+find . -type f | NODE_OPTIONS="" node ../gitignore.js .myignore
+
+# will print
+abc/def/ghi/test2.txt
+abc/test.txt
+test.txt
+            </script>
+          </ace-editor>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast" class="toast">Command copied to clipboard</div>
+
+    <script type="module">
+      import gitignoreToFind from "./gitignoreToFind.js";
+
+      const input = document.getElementById("gitignore-input");
+      const output = document.getElementById("find-output");
+      const copyBtn = document.getElementById("copy-btn");
+      const resetBtn = document.getElementById("reset-btn");
+      const toast = document.getElementById("toast");
+
+      async function update() {
+        const text = input.value.trim();
+        
+        // Update URL with base64 encoded content
+        const url = new URL(window.location);
+        if (text) {
+          try {
+            const b64 = btoa(unescape(encodeURIComponent(text)));
+            url.searchParams.set("v", b64);
+          } catch (e) {
+            console.error("Encoding error", e);
+          }
+        } else {
+          url.searchParams.delete("v");
+        }
+        window.history.replaceState({}, "", url);
+
+        if (!text) {
+          output.value = "";
+          return;
+        }
+
+        try {
+          const args = await gitignoreToFind(text);
+          output.value = "find . " + args.join(" ");
+        } catch (e) {
+          console.error(e);
+          output.value = "/* Error processing gitignore */";
+        }
+      }
+
+      input.addEventListener("input", update);
+
+      resetBtn.addEventListener("click", () => {
+        input.value = "";
+        output.value = "";
+        input.focus();
+      });
+
+      copyBtn.addEventListener("click", () => {
+        if (!output.value) return;
+
+        const fullCommand = output.value;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(fullCommand).then(() => {
+            showToast();
+          });
+        } else {
+          // Fallback for non-secure contexts
+          const textArea = document.createElement("textarea");
+          textArea.value = fullCommand;
+          document.body.appendChild(textArea);
+          textArea.select();
+          try {
+            document.execCommand("copy");
+            showToast();
+          } catch (err) {
+            console.error("Fallback: Oops, unable to copy", err);
+          }
+          document.body.removeChild(textArea);
+        }
+      });
+
+      function showToast() {
+        toast.classList.add("show");
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      // Load from URL or default example
+      const urlParams = new URLSearchParams(window.location.search);
+      const v = urlParams.get("v");
+      if (v) {
+        try {
+          input.value = decodeURIComponent(escape(atob(v)));
+        } catch (e) {
+          console.error("Decoding error", e);
+        }
+      }
+
+      if (!input.value) {
+        input.value = `# Default example
+node_modules/
+dist/
+*.log
+!important.log
+/temp/`;
+      }
+      update();
+    </script>
+
+    <github-ribbon link="https://github.com/stopsopa/gitignore_to_find" type="right" color="#679d2c">Fork me on GitHub</github-ribbon>
+  </body>
+</html>
