@@ -1,0 +1,36 @@
+{
+  "name": "stopsopa__kafka",
+  "version": "1.0.0",
+  "description": "aggregation / grouping / filtering / joining messages & and link and enrich data",
+  "main": "index.js",
+  "scripts": {
+    "start": "/bin/bash ts.sh src/server.ts",
+    "dev": "/bin/bash ts.sh --watch src/server.ts",
+    "type-check": "tsc",
+    "lint:bash": "shellcheck --shell=bash *.sh bash/*.sh docker/*.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stopsopa/kafka.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-2.0-only",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/stopsopa/kafka/issues"
+  },
+  "homepage": "https://github.com/stopsopa/kafka#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.1",
+    "c8": "^10.1.3",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "kafkajs": "^2.2.4",
+    "zod": "^4.3.6"
+  }
+}
