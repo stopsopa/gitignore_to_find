@@ -28,15 +28,17 @@ export default async function diskStructuresCreate(
       // attempt create might fail if it's a file
     }
 
+    let stats2;
     try {
-      const stats2 = await fs.stat(targetDir);
-      if (!stats2.isDirectory()) {
-        throw th(`Path exists but is not a directory: ${targetDir}`);
-      }
+      stats2 = await fs.stat(targetDir);
     } catch (error) {
       throw th(
         `Failed to create directory: ${targetDir}, msg: ${String(error)}`,
       );
+    }
+    
+    if (!stats2.isDirectory()) {
+      throw th(`Path exists but is not a directory: ${targetDir}`);
     }
   }
 

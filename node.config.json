@@ -7,6 +7,6 @@
     "experimental-test-coverage": true,
     "test-concurrency": 1,
     "test-coverage-lines": 80,
-    "test-coverage-exclude": ["node-suppress-warning.js", "ts-resolver.js"]
+    "test-coverage-include": ["src/**"]
   }
 }
