@@ -42,17 +42,15 @@ cde/eft/ppp.txt
         cwd,
       });
 
-    //   console.log(JSON.stringify(result, null, 2));
+      //   console.log(JSON.stringify(result, null, 2));
 
       assert.equal(result.code, 0);
 
       const stdoutLines = result.stdout.split("\n").filter(Boolean).sort();
 
       assert.deepStrictEqual(stdoutLines, expected);
-    } catch (e) {
+    } finally {
       await diskStructuresEmptyDir(cwd, true);
-
-      throw e;
     }
   });
 });
