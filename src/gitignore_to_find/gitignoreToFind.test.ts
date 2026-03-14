@@ -110,7 +110,7 @@ cde/eft/ppp.txt
 test.txt
 # comment
 `,
-      expectedFindArgs: [],
+      expectedFindArgs: ["-not", "-path", "test.txt"],
       expectedJs: ["abc/test.txt", "cde/eft/ppp.txt", ".gitignore"],
       expectedGit: ["cde/eft/ppp.txt", ".gitignore"],
       expectedFind: ["abc/test.txt", "cde/eft/ppp.txt", ".gitignore"],
