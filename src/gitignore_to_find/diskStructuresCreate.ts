@@ -7,7 +7,7 @@ export default async function diskStructuresCreate(
   targetDir: string,
   string: string,
 ) {
-  const list = string.split("\n").filter(Boolean);
+  const list = string.split("\n").map(s => s.trim()).filter(Boolean);
 
   if (list.length === 0) {
     throw th("empty list");

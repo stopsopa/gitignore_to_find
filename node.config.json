@@ -5,7 +5,7 @@
   },
   "testRunner": {
     "experimental-test-coverage": true,
-    "test-concurrency": 1,
+    "test-concurrency": 10,
     "test-coverage-lines": 80,
     "test-coverage-include": ["src/**"]
   }
