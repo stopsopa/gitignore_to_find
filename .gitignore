@@ -1,5 +1,5 @@
-
 node_modules
 /coverage/
 /.npm-cache/
 /var/
+/node.config.generated.json

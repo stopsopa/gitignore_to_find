@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, type SpawnOptionsWithoutStdio } from "node:child_process";
 
 export type Return = {
   stdout: string;
@@ -9,11 +9,11 @@ export type Return = {
 export default async function cmd(
   mainExec: string,
   args: string[],
-  cwd?: string,
+  options?: SpawnOptionsWithoutStdio,
 ): Promise<Return> {
   return new Promise<Return>((resolve) => {
     try {
-      const child = spawn(mainExec, args, { cwd });
+      const child = spawn(mainExec, args, options);
 
       let stdout = "";
       let stderr = "";

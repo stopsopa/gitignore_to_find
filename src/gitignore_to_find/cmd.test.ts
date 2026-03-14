@@ -29,7 +29,7 @@ test("cmd utility", async (t) => {
     const testDir = path.resolve(import.meta.dirname, "../../");
     
     // Instead of looking at `pwd` which could vary with symlinks, let's just run an `ls package.json` in the root of the project
-    const res = await cmd("ls", ["package.json"], testDir);
+    const res = await cmd("ls", ["package.json"], { cwd: testDir });
     assert.strictEqual(res.code, 0);
     assert.strictEqual(res.stdout.trim(), "package.json");
   });

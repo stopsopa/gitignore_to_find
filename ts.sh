@@ -31,7 +31,11 @@ EEE
   fi
 fi
 
-NODE_CMD=(node --experimental-config-file="${DIR}/node.config.json" --experimental-loader="${DIR}/ts-resolver.js" --import "file://${DIR}/node-suppress-warning.js")
+# Generate node.config.json from node.config.js
+# we are not using node.config.js directly because node --experimental-config-file ONLY supports JSON
+node "${DIR}/node.config.js" > "${DIR}/node.config.generated.json"
+
+NODE_CMD=(node --experimental-config-file="${DIR}/node.config.generated.json" --experimental-loader="${DIR}/ts-resolver.js" --import "file://${DIR}/node-suppress-warning.js")
 
 if [[ "${@}" == *"--test"* ]]; then
 
@@ -45,12 +49,17 @@ if [[ "${@}" == *"--test"* ]]; then
     REPORTERS=(--reporter=lcov --reporter=html)
   fi
 
-  # only allow node to be attached to debugger, not npx or c8
-  # https://github.com/bcoe/c8/issues/136#issuecomment-680456108
-  # also reseting NODE_OPTIONS to empty string for wrapper c8 process but forwarding it as is to the main testing process
-  NODE_OPTIONS="" npx c8 "${REPORTERS[@]}" \
+  if [ -n "${NO_COVERAGE}" ]; then
     env NODE_OPTIONS="${NODE_OPTIONS}" \
-    "${NODE_CMD[@]}" "${@}"
+      "${NODE_CMD[@]}" "${@}"
+  else
+    # only allow node to be attached to debugger, not npx or c8
+    # https://github.com/bcoe/c8/issues/136#issuecomment-680456108
+    # also reseting NODE_OPTIONS to empty string for wrapper c8 process but forwarding it as is to the main testing process
+    NODE_OPTIONS="" npx c8 "${REPORTERS[@]}" \
+      env NODE_OPTIONS="${NODE_OPTIONS}" \
+      "${NODE_CMD[@]}" "${@}"
+  fi
 else
   "${NODE_CMD[@]}" "${@}"
 fi

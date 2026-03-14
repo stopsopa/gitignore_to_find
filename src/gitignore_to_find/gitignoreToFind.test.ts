@@ -9,35 +9,48 @@ import cmd from "./cmd.ts";
 
 const th = (msg: string) => `diskStructuresCreate.ts error: ${msg}`;
 
+const rootDir = path.resolve(import.meta.dirname, "../../");
+
+const testDir = path.resolve(rootDir, "var/");
+
+const scriptPath = path.resolve(import.meta.dirname, "find.sh");
+
 /**
  * /bin/bash ts.sh --test src/gitignore_to_find/gitignoreToFind.test.ts
  */
 test("gitignoreToFind", async (t) => {
-  const testDir = path.resolve(import.meta.dirname, "../../var/");
-
   await t.test("basic", async () => {
-    const tmp = path.resolve(testDir, "basic");
+    const cwd = path.resolve(testDir, "basic");
 
     try {
       await diskStructuresCreate(
-        tmp,
+        cwd,
         `
-        
 abc/test.txt
 abc/def/
 cde/eft/ppp.txt
 `,
       );
 
-      const list = await diskStructuresListDir(tmp);
+      const expected = ["abc/test.txt", "cde/eft/ppp.txt"].sort();
 
-    //   console.log(JSON.stringify(list, null, 2));
+      const listTs = await diskStructuresListDir(cwd);
 
-      assert.deepStrictEqual(list, ["abc/test.txt", "cde/eft/ppp.txt"]);
+      assert.deepStrictEqual(listTs, expected);
 
-      // assert.strictEqual(stats2.isFile(), true);
+      const result = await cmd("/bin/bash", [scriptPath, ".", "-type", "f"], {
+        cwd,
+      });
+
+    //   console.log(JSON.stringify(result, null, 2));
+
+      assert.equal(result.code, 0);
+
+      const stdoutLines = result.stdout.split("\n").filter(Boolean).sort();
+
+      assert.deepStrictEqual(stdoutLines, expected);
     } catch (e) {
-      await diskStructuresEmptyDir(tmp, true);
+      await diskStructuresEmptyDir(cwd, true);
 
       throw e;
     }
