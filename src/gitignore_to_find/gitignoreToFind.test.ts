@@ -26,62 +26,83 @@ function process(stdout: string) {
     .sort();
 }
 
+async function commonLogic({
+  testDirectory,
+  diskStructure,
+  gitignore,
+  expectedJs,
+  expectedGit,
+  expectedFind,
+}: {
+  testDirectory: string;
+  diskStructure: string;
+  gitignore: string;
+  expectedJs: string[];
+  expectedGit: string[];
+  expectedFind: string[];
+}) {
+  const cwd = path.resolve(testDir, testDirectory);
+
+  try {
+    // making sure directory doesn't exist on start
+    await diskStructuresEmptyDir(cwd, true);
+
+    // create initial layout of files in our directory
+    await diskStructuresCreate(cwd, diskStructure);
+
+    // create gitignore file in cwd with content 'test.txt\n# comment\n'
+    await fs.writeFile(path.resolve(cwd, ".gitignore"), gitignore);
+
+    // list using node.js
+    const listTs = await diskStructuresListDir(cwd);
+    assert.deepStrictEqual(listTs, expectedJs.sort());
+
+    // list using git
+    const gitStatus = await cmd("/bin/bash", [gitScriptPath], {
+      cwd,
+      process,
+    });
+    assert.deepStrictEqual(gitStatus, {
+      code: 0,
+      stderr: "",
+      stdout: expectedGit.sort(),
+    });
+
+    // list using find
+    const result = await cmd("/bin/bash", [findScript, ".", "-type", "f"], {
+      cwd,
+      process,
+    });
+    assert.deepStrictEqual(result, {
+      code: 0,
+      stderr: "",
+      stdout: expectedFind.sort(),
+    });
+  } finally {
+    await diskStructuresEmptyDir(cwd, true);
+  }
+}
+
 /**
  *                  /bin/bash ts.sh --test src/gitignore_to_find/gitignoreToFind.test.ts
  * NO_COVERAGE=true /bin/bash ts.sh --test src/gitignore_to_find/gitignoreToFind.test.ts
  */
 test("gitignoreToFind", async (t) => {
   await t.test("basic", async () => {
-    const cwd = path.resolve(testDir, "basic");
-
-    try {
-      // making sure directory doesn't exist on start
-      await diskStructuresEmptyDir(cwd, true);
-
-      // create initial layout of files in our directory
-      await diskStructuresCreate(
-        cwd,
-        `
+    await commonLogic({
+      testDirectory: "basic",
+      diskStructure: `
 abc/test.txt
 abc/def/
 cde/eft/ppp.txt
 `,
-      );
-
-      // what we normally should get
-      const expected = ["abc/test.txt", "cde/eft/ppp.txt"].sort();
-
-      // list using node.js
-      const listTs = await diskStructuresListDir(cwd);
-
-      // check if we get what we expect
-      assert.deepStrictEqual(listTs, expected);
-
-      // let's use find wrapper
-      const result = await cmd("/bin/bash", [findScript, ".", "-type", "f"], {
-        cwd,
-        process,
-      });
-
-      assert.deepStrictEqual(result, {
-        code: 0,
-        stderr: "",
-        stdout: expected,
-      });
-
-      // now let's see what git will show ready for staging
-      const gitStatus = await cmd("/bin/bash", [gitScriptPath], {
-        cwd,
-        process,
-      });
-
-      assert.deepStrictEqual(gitStatus, {
-        code: 0,
-        stderr: "",
-        stdout: expected,
-      });
-    } finally {
-      await diskStructuresEmptyDir(cwd, true);
-    }
+      gitignore: `
+test.txt
+# comment
+`,
+      expectedJs: ["abc/test.txt", "cde/eft/ppp.txt", ".gitignore"],
+      expectedGit: ["cde/eft/ppp.txt", ".gitignore"],
+      expectedFind: ["abc/test.txt", "cde/eft/ppp.txt", ".gitignore"],
+    });
   });
 });
