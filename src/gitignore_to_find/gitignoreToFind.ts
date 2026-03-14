@@ -10,11 +10,7 @@ export default async function gitignoreToFind(
   const result: string[] = [];
 
   for (const item of list) {
-    // if (item.startsWith("!")) {
-    //   result.push("-path", item);
-    // } else {
-      result.push("-not", "-path", item);
-    // }
+    result.push("-not", "-path", item);
   }
 
   return result;
