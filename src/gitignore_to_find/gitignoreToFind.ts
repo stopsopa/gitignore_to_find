@@ -7,5 +7,7 @@ export default async function gitignoreToFind(
     .filter(Boolean)
     .filter((s) => !s.startsWith("#"));
 
-  return list;
+  const result: string[] = [];
+
+  return result;
 }

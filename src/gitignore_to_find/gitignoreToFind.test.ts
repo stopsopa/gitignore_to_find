@@ -30,6 +30,7 @@ async function commonLogic({
   testDirectory,
   diskStructure,
   gitignore,
+  expectedFindArgs,
   expectedJs,
   expectedGit,
   expectedFind,
@@ -37,6 +38,7 @@ async function commonLogic({
   testDirectory: string;
   diskStructure: string;
   gitignore: string;
+  expectedFindArgs: string[];
   expectedJs: string[];
   expectedGit: string[];
   expectedFind: string[];
@@ -68,11 +70,19 @@ async function commonLogic({
       stdout: expectedGit.sort(),
     });
 
+    const findArgs = await gitignoreToFind(gitignore);
+
+    assert.deepStrictEqual(findArgs, expectedFindArgs);
+
     // list using find
-    const result = await cmd("/bin/bash", [findScript, ".", "-type", "f"], {
-      cwd,
-      process,
-    });
+    const result = await cmd(
+      "/bin/bash",
+      [findScript, ".", "-type", "f", ...findArgs],
+      {
+        cwd,
+        process,
+      },
+    );
     assert.deepStrictEqual(result, {
       code: 0,
       stderr: "",
@@ -100,6 +110,7 @@ cde/eft/ppp.txt
 test.txt
 # comment
 `,
+      expectedFindArgs: [],
       expectedJs: ["abc/test.txt", "cde/eft/ppp.txt", ".gitignore"],
       expectedGit: ["cde/eft/ppp.txt", ".gitignore"],
       expectedFind: ["abc/test.txt", "cde/eft/ppp.txt", ".gitignore"],
