@@ -1,19 +1,47 @@
 import { spawn, type SpawnOptionsWithoutStdio } from "node:child_process";
 
-export type Return = {
-  stdout: string;
+export type Return<T = string> = {
+  stdout: T;
   stderr: string;
   code: number;
+};
+
+/**
+ * Achievement: Dynamic return type based on input options.
+ * Techniques used:
+ * 1. Function Overloading: Defining multiple signatures for the same function to 
+ *    map specific input shapes (options with or without 'process') to specific 
+ *    return types.
+ * 2. Generics: Using Return<T> to allow the 'stdout' field to take different types 
+ *    depending on the overload matched.
+ */
+
+export type Options<T = any> = SpawnOptionsWithoutStdio & {
+  process?: (stdout: string) => T;
 };
 
 export default async function cmd(
   mainExec: string,
   args: string[],
   options?: SpawnOptionsWithoutStdio,
-): Promise<Return> {
-  return new Promise<Return>((resolve) => {
+): Promise<Return<string>>;
+
+export default async function cmd(
+  mainExec: string,
+  args: string[],
+  options: SpawnOptionsWithoutStdio & { process: (stdout: string) => string[] },
+): Promise<Return<string[]>>;
+
+export default async function cmd(
+  mainExec: string,
+  args: string[],
+  options?: any,
+): Promise<Return<any>> {
+  return new Promise<Return<any>>((resolve) => {
     try {
       const child = spawn(mainExec, args, options);
+
+      const { process } = options ?? {};
 
       let stdout = "";
       let stderr = "";
@@ -36,7 +64,7 @@ export default async function cmd(
 
       child.on("close", (code) => {
         resolve({
-          stdout,
+          stdout: process ? process(stdout) : stdout,
           stderr,
           code: code ?? child?.exitCode ?? 0,
         });

@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 set -o pipefail
-find "$@" | sed 's|^\./||'
+find "$@" -not -path '*/.git/*' | sed 's|^\./||'

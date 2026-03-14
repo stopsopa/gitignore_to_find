@@ -2,10 +2,6 @@
 
 set -e
 
-DIR="${1}"
+git init . > /dev/null 2>&1
 
-cd "${DIR}"
-
-git init .
-
-git status --porcelain --untracked-files=all | sed 's/^?? /.\//'
+git status --porcelain --untracked-files=all | sed 's/^?? //'
