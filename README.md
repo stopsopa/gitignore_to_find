@@ -26,6 +26,10 @@ find . -path 'node_modules' -prune -o -path '.git' -prune -o -type f -print | NO
 
 ```
 
+So in above example we are doing major exclusion to not enter 'node_modules' and '.git' directories on the `find` level and we are filtering the rest with our script using shell stream.
+
+This approach represent sweat spot between performance and accuracy.
+
 Typescript sourcecode for this script is here [gitignore.ts](gitignore.ts)
 
 It simply relays on [gitignore-parser](https://www.npmjs.com/package/gitignore-parser) library.
