@@ -30,13 +30,13 @@ echo "Bundling cmd.js for node"
 # Format: ESM
 # Platform: neutral (aiming for dual compatibility where possible)
 # Note: node:child_process is marked as external for compatibility
-node node_modules/.bin/esbuild src/gitignore_to_find/cmd.ts \
+node node_modules/.bin/esbuild src/gitignore_to_find/cli.find.ts \
   --bundle \
   --format=esm \
-  --platform=neutral \
+  --platform=node \
   --external:node:child_process \
-  --outfile=cmd.js
-prepend cmd.js
+  --outfile=cli.find.js
+prepend cli.find.js
 
 echo "Bundling gitignore.js for node"
 node node_modules/.bin/esbuild gitignore.ts \
@@ -48,4 +48,4 @@ prepend gitignore.js
 
 
 echo "Done. Bundles created:"
-ls -la cmd.js gitignoreToFind.js gitignore.js
+ls -la cli.find.js gitignoreToFind.js gitignore.js
