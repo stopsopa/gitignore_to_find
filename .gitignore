@@ -5,5 +5,5 @@ node_modules
 /node.config.generated.json
 /src/gitignore_to_find/*.js
 /gitignoreToFind.js
-/cmd.js
+/cli.find.js
 /gitignore.js

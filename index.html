@@ -222,6 +222,10 @@
       src="https://stopsopa.github.io/ace-editor-webcomponent/ace-web-component.js"
       data-main-ace="https://stopsopa.github.io/ace-editor-webcomponent/noprettier/ace/ace-builds-1.43.4/src-min-noconflict/ace.js"
     ></script>
+    <link
+      rel="stylesheet"
+      href="https://stopsopa.github.io/tabs/vanilla-tabs.css"
+    />
   </head>
   <body>
     <header>
@@ -266,38 +270,88 @@ dist/
           <button id="reset-btn" class="btn-secondary">Reset</button>
           <button id="copy-btn" class="btn-primary">Copy Find Command</button>
         </div>
-        <div>   
+        <div>
 
-          <div class="label-row">
-            <label for="find-output">Native solution</label>
-          </div>
+
+<div data-vanilla-tabs>
+    <div data-buttons>
+        <a href="javascript:;" class="active">Native solution</a>
+        <span>javascript</span>
+        <span>result</span>
+    </div>
+    <div data-tabs>
+        <div>
           <ace-editor lang="sh">
             <script type="ace">
-wget https://stopsopa.github.io/gitignore_to_find/gitignore.js            
+              wget https://stopsopa.github.io/gitignore_to_find/gitignore.js
 
-mkdir __gitignoretest
-cd __gitignoretest
-mkdir -p abc/def/ghi/
-touch abc/def/ghi/test.txt
-touch abc/def/ghi/test2.txt
-touch abc/def/test.txt
-touch abc/test.txt
-touch test.txt
+              mkdir __gitignoretest
+              cd __gitignoretest
+              mkdir -p abc/def/ghi/
+              touch abc/def/ghi/test.txt
+              touch abc/def/ghi/test2.txt
+              touch abc/def/test.txt
+              touch abc/test.txt
+              touch test.txt
 
-cat <<EEE > .myignore
-.myignore
-abc/def/
-!/abc/def/ghi/test2.txt
-EEE
+              cat <<EEE > .myignore
+              .myignore
+              abc/def/
+              !/abc/def/ghi/test2.txt
+              EEE
 
-find . -type f | NODE_OPTIONS="" node ../gitignore.js .myignore
+              find . -type f | NODE_OPTIONS="" node ../gitignore.js .myignore
 
-# will print
-abc/def/ghi/test2.txt
-abc/test.txt
-test.txt
+              # will print
+              abc/def/ghi/test2.txt
+              abc/test.txt
+              test.txt
             </script>
           </ace-editor>
+        </div>
+        <div>
+          <ace-editor lang="sh">
+            <script type="ace">
+              wget https://stopsopa.github.io/gitignore_to_find/cli.find.js
+
+              mkdir __gitignoretest
+              cd __gitignoretest
+              mkdir -p abc/def/ghi/
+              touch abc/def/ghi/test.txt
+              touch abc/def/ghi/test2.txt
+              touch abc/def/test.txt
+              touch abc/test.txt
+              touch test.txt
+
+              cat <<EEE > .myignore
+              .myignore
+              abc/def/*
+              !/abc/def/ghi/test2.txt
+              EEE
+
+              NODE_OPTIONS="" node cli.find.js
+                # for help page
+
+              echo $(NODE_OPTIONS="" node cli.find.js .myignore)
+                # -path "*/.myignore" -prune -o -type f \( ! -path "*/abc/def/*" -o -path ./abc/def/ghi/test2.txt \) -print
+
+              eval "find . $(NODE_OPTIONS='' node cli.find.js .myignore)"
+
+              # will print
+              ./abc/def/ghi/test2.txt
+              ./abc/test.txt
+              ./gitignoreToFind.js
+              ./cli.find.js
+              ./test.txt
+            </script>
+          </ace-editor>
+        </div>
+        <div>
+            my stuff for tab 3
+        </div>
+    </div>
+</div>
+
         </div>
       </div>
     </main>
@@ -315,7 +369,7 @@ test.txt
 
       async function update() {
         const text = input.value.trim();
-        
+
         // Update URL with base64 encoded content
         const url = new URL(window.location);
         if (text) {
@@ -405,6 +459,13 @@ dist/
       update();
     </script>
 
-    <github-ribbon link="https://github.com/stopsopa/gitignore_to_find" type="right" color="#679d2c">Fork me on GitHub</github-ribbon>
+    <github-ribbon
+      link="https://github.com/stopsopa/gitignore_to_find"
+      type="right"
+      color="#679d2c"
+      >Fork me on GitHub</github-ribbon
+    >
+
+    <script src="https://stopsopa.github.io/tabs/vanilla-tabs.js?vanilla-tabs-autoenable"></script>
   </body>
 </html>
