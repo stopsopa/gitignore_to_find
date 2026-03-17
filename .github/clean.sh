@@ -13,6 +13,7 @@ TO_REMOVE=(
   "node_modules"
   "src"
   ".git"
+  ".agent"
   ".github"
   "tsconfig.json"
   "package.json"
