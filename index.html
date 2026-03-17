@@ -276,14 +276,12 @@ dist/
 <div data-vanilla-tabs>
     <div data-buttons>
         <a href="javascript:;" class="active">Native solution</a>
-        <span>javascript</span>
-        <span>result</span>
+        <span>cli.find.js</span>
     </div>
     <div data-tabs>
         <div>
           <ace-editor lang="sh">
             <script type="ace">
-              wget https://stopsopa.github.io/gitignore_to_find/gitignore.js
 
               mkdir __gitignoretest
               cd __gitignoretest
@@ -293,6 +291,7 @@ dist/
               touch abc/def/test.txt
               touch abc/test.txt
               touch test.txt
+              wget https://stopsopa.github.io/gitignore_to_find/gitignore.js
 
               cat <<EEE > .myignore
               .myignore
@@ -300,7 +299,7 @@ dist/
               !/abc/def/ghi/test2.txt
               EEE
 
-              find . -type f | NODE_OPTIONS="" node ../gitignore.js .myignore
+              find . -type f | NODE_OPTIONS="" node gitignore.js .myignore
 
               # will print
               abc/def/ghi/test2.txt
@@ -312,7 +311,6 @@ dist/
         <div>
           <ace-editor lang="sh">
             <script type="ace">
-              wget https://stopsopa.github.io/gitignore_to_find/cli.find.js
 
               mkdir __gitignoretest
               cd __gitignoretest
@@ -322,6 +320,8 @@ dist/
               touch abc/def/test.txt
               touch abc/test.txt
               touch test.txt
+
+              wget https://stopsopa.github.io/gitignore_to_find/cli.find.js
 
               cat <<EEE > .myignore
               .myignore
@@ -340,14 +340,10 @@ dist/
               # will print
               ./abc/def/ghi/test2.txt
               ./abc/test.txt
-              ./gitignoreToFind.js
               ./cli.find.js
               ./test.txt
             </script>
           </ace-editor>
-        </div>
-        <div>
-            my stuff for tab 3
         </div>
     </div>
 </div>
