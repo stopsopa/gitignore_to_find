@@ -14,9 +14,9 @@ Try to play with it on the [demo page](https://stopsopa.github.io/gitignore_to_f
 
 # Second solution in this repository
 
-Since I've discovered that finding set of arguments for `find` is not ideal I've decided to try another approach.
+Since I've discovered that finding set of arguments for `find` to reflect .gitignore excluding arlghoritm cannot be mapped 1:1 I've tried another approach.
 
-So the second approach is just relaying on using separate script which can be used using native shell streams like
+So the second approach is just relaying on using separate script which can be used to futher process native output from find using pipe streams:
 
 ```
 
