@@ -150,7 +150,11 @@ export default async function gitignoreToFind(
 
   log("brackets", brackets);
 
-  args.push("-o", "-type", "f");
+  if (args.length > 0) {
+    args.push("-o");
+  }
+
+  args.push("-type", "f");
 
   if (brackets.length > 0) {
     args.push("(", ...brackets, ")");

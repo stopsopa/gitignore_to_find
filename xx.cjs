@@ -50,6 +50,14 @@ EEE
       description: `docker down & up - basically can be used for restarting too`,
       confirm: false,
     },
+    [`bundle`]: {
+      command: `
+set -e
+/bin/bash bundle.sh
+`,
+      description: `bundle`,
+      confirm: false,
+    },
     [`coverage`]: {
       command: `   
 FILE="coverage/index.html"
