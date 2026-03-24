@@ -3,21 +3,6 @@ import assert from "node:assert";
 import gitignoreToFind from "./gitignoreToFind.ts";
 
 test("gitignoreToFind - Coverage Improvement", async (t) => {
-  await t.test("debug logging", async () => {
-    // Capture console.log output
-    const originalLog = console.log;
-    let logged = false;
-    console.log = () => {
-      logged = true;
-    };
-
-    try {
-      await gitignoreToFind("node_modules/", { debug: true });
-      assert.strictEqual(logged, true, "Should have logged when debug is true");
-    } finally {
-      console.log = originalLog;
-    }
-  });
 
   await t.test("quoteWithSpaces: true (default)", async () => {
     const args = await gitignoreToFind("path with space/", { quoteWithSpaces: true, quoteStars: false });

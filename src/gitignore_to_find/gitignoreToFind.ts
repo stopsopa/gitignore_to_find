@@ -44,12 +44,6 @@ export default async function gitignoreToFind(
     ...options,
   };
 
-  function log(...args: any[]) {
-    if (debug) {
-      console.log(...args);
-    }
-  }
-
   const lines = gitignoreString
     .split("\n")
     .map((s) => s.trim())
@@ -99,15 +93,12 @@ export default async function gitignoreToFind(
     return [...acc, ["-path", prefix(prunePath), "-prune"]];
   }, []);
 
-  log("prunes", prunes);
-
   const descending = [...descendPaths].reduce<string[][]>(
     (acc, descendPath) => {
       return [...acc, ["!", "-path", prefix(descendPath)]];
     },
     [],
   );
-  log("descending", descending);
 
   const unignore = [...unignorePaths].reduce<string[][]>(
     (acc, unignorePath) => {
@@ -115,10 +106,6 @@ export default async function gitignoreToFind(
     },
     [],
   );
-
-  log("unignore", unignore);
-
-  log("------------");
 
   const args: string[] = [];
 
@@ -146,10 +133,6 @@ export default async function gitignoreToFind(
     brackets.push(...p);
   });
 
-  log("args", args);
-
-  log("brackets", brackets);
-
   if (args.length > 0) {
     args.push("-o");
   }
@@ -161,8 +144,6 @@ export default async function gitignoreToFind(
   }
 
   args.push("-print");
-
-  log("args", args);
 
   let tmp = args;
 
