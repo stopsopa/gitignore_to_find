@@ -276,12 +276,14 @@ dist/
 <div data-vanilla-tabs>
     <div data-buttons>
         <a href="javascript:;" class="active">pipe filtering method</a>
-        <span>cli.find.js</span>
+        <span>cli.find.js generate find arguments</span>
     </div>
     <div data-tabs>
         <div>
           <ace-editor lang="sh">
             <script type="ace">
+              # filtering output from find using pipe
+              # NOTE: more reliable and flexible - use this one
 
               mkdir __gitignoretest
               cd __gitignoretest
@@ -311,6 +313,8 @@ dist/
         <div>
           <ace-editor lang="sh">
             <script type="ace">
+              # solution to translate ignorefile to native find arguments
+              # NOTE: not reliable - not recommended to use
 
               mkdir __gitignoretest
               cd __gitignoretest
