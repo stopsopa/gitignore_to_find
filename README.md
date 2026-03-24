@@ -8,9 +8,11 @@
 
 This is basically an experiment project attempting to transform rules from any .gitignore like file to set of arguments for `find` shell program to achieve the same result.
 
-Final result is not ideal but seems to generally do it's job for most in most simple cases.
+Final result is not perfect but seems to generally do it's job for most simple cases.
 
 Try to play with it on the [demo page](https://stopsopa.github.io/gitignore_to_find/)
+
+But I'm not happy with the result and I wouldn't use it in production.
 
 # Second solution in this repository
 
