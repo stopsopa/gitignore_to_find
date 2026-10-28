@@ -271,87 +271,84 @@ dist/
           <button id="copy-btn" class="btn-primary">Copy Find Command</button>
         </div>
         <div>
+          <div data-vanilla-tabs>
+            <div data-buttons>
+              <a href="javascript:;" class="active">pipe filtering method</a>
+              <span>cli.find.js generate find arguments</span>
+            </div>
+            <div data-tabs>
+              <div>
+                <ace-editor lang="sh">
+                  <script type="ace">
+                    # filtering output from find using pipe
+                    # NOTE: more reliable and flexible - use this one
 
+                    mkdir __gitignoretest
+                    cd __gitignoretest
+                    mkdir -p abc/def/ghi/
+                    touch abc/def/ghi/test.txt
+                    touch abc/def/ghi/test2.txt
+                    touch abc/def/test.txt
+                    touch abc/test.txt
+                    touch test.txt
+                    wget https://stopsopa.github.io/gitignore_to_find/gitignore.js
 
-<div data-vanilla-tabs>
-    <div data-buttons>
-        <a href="javascript:;" class="active">pipe filtering method</a>
-        <span>cli.find.js generate find arguments</span>
-    </div>
-    <div data-tabs>
-        <div>
-          <ace-editor lang="sh">
-            <script type="ace">
-              # filtering output from find using pipe
-              # NOTE: more reliable and flexible - use this one
+                    cat <<EEE > .myignore
+                    .myignore
+                    abc/def/
+                    !/abc/def/ghi/test2.txt
+                    EEE
 
-              mkdir __gitignoretest
-              cd __gitignoretest
-              mkdir -p abc/def/ghi/
-              touch abc/def/ghi/test.txt
-              touch abc/def/ghi/test2.txt
-              touch abc/def/test.txt
-              touch abc/test.txt
-              touch test.txt
-              wget https://stopsopa.github.io/gitignore_to_find/gitignore.js
+                    find . -type f | NODE_OPTIONS="" node gitignore.js .myignore
 
-              cat <<EEE > .myignore
-              .myignore
-              abc/def/
-              !/abc/def/ghi/test2.txt
-              EEE
+                    # will print
+                    abc/def/ghi/test2.txt
+                    abc/test.txt
+                    test.txt
+                  </script>
+                </ace-editor>
+              </div>
+              <div>
+                <ace-editor lang="sh">
+                  <script type="ace">
+                    # solution to translate ignorefile to native find arguments
+                    # NOTE: not reliable - not recommended to use
 
-              find . -type f | NODE_OPTIONS="" node gitignore.js .myignore
+                    mkdir __gitignoretest
+                    cd __gitignoretest
+                    mkdir -p abc/def/ghi/
+                    touch abc/def/ghi/test.txt
+                    touch abc/def/ghi/test2.txt
+                    touch abc/def/test.txt
+                    touch abc/test.txt
+                    touch test.txt
 
-              # will print
-              abc/def/ghi/test2.txt
-              abc/test.txt
-              test.txt
-            </script>
-          </ace-editor>
-        </div>
-        <div>
-          <ace-editor lang="sh">
-            <script type="ace">
-              # solution to translate ignorefile to native find arguments
-              # NOTE: not reliable - not recommended to use
+                    wget https://stopsopa.github.io/gitignore_to_find/cli.find.js
 
-              mkdir __gitignoretest
-              cd __gitignoretest
-              mkdir -p abc/def/ghi/
-              touch abc/def/ghi/test.txt
-              touch abc/def/ghi/test2.txt
-              touch abc/def/test.txt
-              touch abc/test.txt
-              touch test.txt
+                    cat <<EEE > .myignore
+                    .myignore
+                    abc/def/*
+                    !/abc/def/ghi/test2.txt
+                    EEE
 
-              wget https://stopsopa.github.io/gitignore_to_find/cli.find.js
+                    NODE_OPTIONS="" node cli.find.js
+                      # for help page
 
-              cat <<EEE > .myignore
-              .myignore
-              abc/def/*
-              !/abc/def/ghi/test2.txt
-              EEE
+                    echo $(NODE_OPTIONS="" node cli.find.js .myignore)
+                      # -path "*/.myignore" -prune -o -type f \( ! -path "*/abc/def/*" -o -path ./abc/def/ghi/test2.txt \) -print
 
-              NODE_OPTIONS="" node cli.find.js
-                # for help page
+                    eval "find . $(NODE_OPTIONS='' node cli.find.js .myignore)"
 
-              echo $(NODE_OPTIONS="" node cli.find.js .myignore)
-                # -path "*/.myignore" -prune -o -type f \( ! -path "*/abc/def/*" -o -path ./abc/def/ghi/test2.txt \) -print
-
-              eval "find . $(NODE_OPTIONS='' node cli.find.js .myignore)"
-
-              # will print
-              ./abc/def/ghi/test2.txt
-              ./abc/test.txt
-              ./cli.find.js
-              ./test.txt
-            </script>
-          </ace-editor>
-        </div>
-    </div>
-</div>
-
+                    # will print
+                    ./abc/def/ghi/test2.txt
+                    ./abc/test.txt
+                    ./cli.find.js
+                    ./test.txt
+                  </script>
+                </ace-editor>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>

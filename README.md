@@ -37,7 +37,51 @@ This approach represent sweat spot between performance and accuracy.
 
 Typescript sourcecode for this script is here [gitignore.ts](gitignore.ts)
 
-It simply relays on [gitignore-parser](https://www.npmjs.com/package/gitignore-parser) library.
+It uses [node-ignore](https://www.npmjs.com/package/ignore) library to closely mirror Git's ignore engine.
+
+### Advanced examples with line extraction and `--pass-source-line`
+
+You can extract paths from structured lines using `--filter-module` or `--filter-string`, and preserve original source lines on stdout using `--pass-source-line`:
+
+```bash
+find src -type f | awk '
+{
+    commands[0] = "create"
+    commands[1] = "update"
+    commands[2] = "delete"
+
+    print commands[NR % 3 == 0 ? 2 : (NR - 1) % 3] " " $0
+}' |  NODE_OPTIONS= node gitignore.ts --filter-module strip.ts --pass-source-line .testignore
+
+
+find src -type f | awk '
+{
+    commands[0] = "create"
+    commands[1] = "update"
+    commands[2] = "delete"
+
+    print commands[NR % 3 == 0 ? 2 : (NR - 1) % 3] " " $0
+}' |  NODE_OPTIONS= node gitignore.ts --filter-string 'line => line.replace(/^(delete|create|update)\s+/, "")' --pass-source-line .testignore
+```
+
+#### Pipeline breakdown step by step:
+
+1. **`find src -type f`**:
+   - Recursively traverses the `src` directory and outputs all regular file paths line by line to standard output (e.g., `src/server.ts`).
+
+2. **`| awk '{ ... }'`**:
+   - Reads each file path from stdin and prefixes it round-robin with `create `, `update `, or `delete ` based on the line number `NR`.
+   - Produces formatted output lines such as:
+     ```text
+     create src/schema/formSchema.ts
+     update src/gitignore_to_find/diskStructuresEmptyDir.test.ts
+     delete src/gitignore_to_find/diskStructuresListDir.test.ts
+     ```
+
+3. **`| NODE_OPTIONS= node gitignore.ts ...`**:
+   - **Line extraction**: Runs either `--filter-module strip.ts` (external function) or `--filter-string` (inline function) on each incoming line to strip the `create`/`update`/`delete` prefix and isolate the clean file path (e.g. `src/schema/formSchema.ts`).
+   - **Ignore evaluation**: Checks the extracted path against rules in `.testignore` using the `node-ignore` engine.
+   - **Preserving original input (`--pass-source-line`)**: If the file is not ignored, `gitignore.ts` prints the original source line (with its `create`/`update`/`delete` prefix intact) instead of the bare extracted path.
 
 # Issues
 

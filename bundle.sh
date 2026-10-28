@@ -18,7 +18,7 @@ echo "Bundling gitignoreToFind.js for browser..."
 # Bundle gitignoreToFind.ts to the root directory
 # Format: ESM (suitable for <script type="module">)
 # Platform: neutral (works in both browser and node)
-node node_modules/.bin/esbuild src/gitignore_to_find/gitignoreToFind.ts \
+./node_modules/.bin/esbuild src/gitignore_to_find/gitignoreToFind.ts \
   --bundle \
   --format=esm \
   --platform=neutral \
@@ -30,7 +30,7 @@ echo "Bundling cmd.js for node"
 # Format: ESM
 # Platform: neutral (aiming for dual compatibility where possible)
 # Note: node:child_process is marked as external for compatibility
-node node_modules/.bin/esbuild src/gitignore_to_find/cli.find.ts \
+./node_modules/.bin/esbuild src/gitignore_to_find/cli.find.ts \
   --bundle \
   --format=esm \
   --platform=node \
@@ -39,7 +39,7 @@ node node_modules/.bin/esbuild src/gitignore_to_find/cli.find.ts \
 prepend cli.find.js
 
 echo "Bundling gitignore.js for node"
-node node_modules/.bin/esbuild gitignore.ts \
+./node_modules/.bin/esbuild gitignore.ts \
   --bundle \
   --format=esm \
   --platform=node \
