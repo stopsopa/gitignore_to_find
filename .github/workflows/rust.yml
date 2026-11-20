@@ -1,0 +1,161 @@
+name: Rust CI & Release
+
+on:
+  push:
+    branches: [ "**" ]
+    tags: [ "**" ]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test on Linux x64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Compile binary
+        run: /bin/bash rust/compile.sh
+
+      - name: Run parity test against git check-ignore
+        run: /bin/bash rust/test/parity.sh
+
+  build-matrix:
+    name: Build ${{ matrix.target }}
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact_name: gitignore_to_find-darwin-arm64
+            use_cross: false
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact_name: gitignore_to_find-linux-x64
+            use_cross: false
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact_name: gitignore_to_find-linux-arm64
+            use_cross: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross (if required)
+        if: matrix.use_cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      # GITIGNORE_TO_FIND_VERSION is picked up by rust/build.rs and printed by: gitignore_to_find --version
+      # (for cross builds it is passed into the container through rust/Cross.toml)
+      - name: Build binary
+        working-directory: rust
+        env:
+          GITIGNORE_TO_FIND_VERSION: ${{ github.ref_name }}
+          TARGET: ${{ matrix.target }}
+          ARTIFACT_NAME: ${{ matrix.artifact_name }}
+          USE_CROSS: ${{ matrix.use_cross }}
+        run: |
+          if [ "${USE_CROSS}" = "true" ]; then
+            cross build --release --target "${TARGET}"
+          else
+            cargo build --release --target "${TARGET}"
+          fi
+          mkdir -p dist
+          cp "target/${TARGET}/release/gitignore_to_find" "dist/${ARTIFACT_NAME}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: rust/dist/${{ matrix.artifact_name }}
+
+  release:
+    name: Publish Release
+    needs: build-matrix
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Prepare release files and checksums
+        env:
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mkdir -p release-dist
+          find release-artifacts -type f -exec cp {} release-dist/ \;
+          cd release-dist
+          shasum -a 256 gitignore_to_find-* > SHA256SUMS.txt
+
+          BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
+
+          cat << EOF > ../release_notes.md
+          ### Installation & Checksum Verification
+
+          EOF
+
+          while read -r hash file; do
+            cat << EOF >> ../release_notes.md
+          #### \`${file}\`
+
+          \`\`\`bash
+          # Download via curl:
+          curl -fL -o gitignore_to_find \\
+            ${BASE_URL}/${file}
+
+          # Or download via wget:
+          wget -O gitignore_to_find \\
+            ${BASE_URL}/${file}
+
+          # Verify checksum:
+          echo '${hash}  gitignore_to_find' \\
+            | shasum -a 256 -c -
+          # (on Linux without shasum: echo '${hash}  gitignore_to_find' | sha256sum -c -)
+
+          chmod +x gitignore_to_find
+          ./gitignore_to_find --version
+          \`\`\`
+
+          EOF
+          done < SHA256SUMS.txt
+
+          cat << EOF >> ../release_notes.md
+          ### SHA-256 Checksums
+
+          | Binary | SHA-256 Checksum |
+          | --- | --- |
+          EOF
+
+          while read -r hash file; do
+            echo "| \`$file\` | \`$hash\` |" >> ../release_notes.md
+          done < SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          body_path: release_notes.md
+          files: |
+            release-dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

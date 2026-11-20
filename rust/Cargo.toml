@@ -1,0 +1,23 @@
+[package]
+name = "gitignore_to_find"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gitignore_to_find"
+path = "src/main.rs"
+
+[dependencies]
+# gitignore engine from gitoxide - port of git's own exclude logic
+# (gix-glob is used through the re-export gix_ignore::glob, so versions always match)
+gix-ignore = "0.16"
+
+# Byte-string paths used by the gix API
+bstr = "1"
+
+# Regex for --replace transformers
+regex = "1"
+
+[profile.release]
+opt-level = 3
+strip = true

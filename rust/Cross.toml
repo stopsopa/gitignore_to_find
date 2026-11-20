@@ -1,0 +1,5 @@
+# Config for 'cross' (used in CI for linux arm64 build).
+# cross builds inside a container which doesn't see host env vars unless listed here.
+# GITIGNORE_TO_FIND_VERSION is read by build.rs and printed by: gitignore_to_find --version
+[build.env]
+passthrough = ["GITIGNORE_TO_FIND_VERSION"]
