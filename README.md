@@ -83,6 +83,70 @@ find src -type f | awk '
    - **Ignore evaluation**: Checks the extracted path against rules in `.testignore` using the `node-ignore` engine.
    - **Preserving original input (`--pass-source-line`)**: If the file is not ignored, `gitignore.ts` prints the original source line (with its `create`/`update`/`delete` prefix intact) instead of the bare extracted path.
 
+# Third solution: standalone binary (Rust)
+
+The same filter as `gitignore.ts` but compiled to a single binary `gitignore_to_find` - no node needed.
+
+It uses [gix-ignore](https://crates.io/crates/gix-ignore) (gitoxide's port of git's own exclude logic) and is tested against `git` itself.
+
+Differences from `gitignore.ts`: instead of `--filter-module` / `--filter-string` (JavaScript) it has `--replace <regex> <replacement>` (regex transformer, can be repeated).
+
+## Installation
+
+Download the binary for your platform from the [GitHub Releases](https://github.com/stopsopa/gitignore_to_find/releases) page. Each release contains direct `curl` / `wget` commands and SHA-256 checksums for each architecture.
+
+Once downloaded, move the binary into your system `PATH`:
+
+```sh
+# Move downloaded binary to /usr/local/bin:
+sudo cp gitignore_to_find /usr/local/bin/gitignore_to_find
+
+# Make it executable:
+sudo chmod a+x /usr/local/bin/gitignore_to_find
+
+# Verify installation:
+gitignore_to_find --version
+gitignore_to_find --help
+
+# Bring to docker
+
+# download linux arm
+curl -fL -o gitignore_to_find \
+  https://github.com/stopsopa/gitignore_to_find/releases/download/v0.0.1/gitignore_to_find-linux-arm64
+
+chmod a+x gitignore_to_find
+
+docker run --rm \
+  -v "$(pwd)/gitignore_to_find:/usr/local/bin/gitignore_to_find:ro" \
+  --entrypoint /usr/local/bin/gitignore_to_find \
+  gcr.io/distroless/cc-debian13:latest \
+  --help
+
+```
+
+If you want to just try it from the current directory without installing (after `curl` and checksum verification from the release page):
+
+```sh
+chmod a+x gitignore_to_find
+
+./gitignore_to_find --version
+```
+
+## Usage
+
+```sh
+# the same example as for gitignore.js above
+find . -path 'node_modules' -prune -o -path '.git' -prune -o -type f -print | gitignore_to_find .customgitignore
+
+# check extracted path, print original line ("create src/a.ts" is tested as "src/a.ts")
+cmd | gitignore_to_find .gitignore --replace '^(delete|create|update)\s+' '' --pass-source-line
+
+# all options and more examples
+gitignore_to_find --help
+```
+
+See [rust/DEV.md](rust/DEV.md) for local development setup, toolchain requirements, testing, and release process.
+
 # Issues
 
 Here are some of the issues I've encountered during implementation:
