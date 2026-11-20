@@ -8,3 +8,5 @@ node_modules
 /cli.find.js
 /gitignore.js
 /__links/
+/rust/target/
+/rust/bin/
