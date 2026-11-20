@@ -4,6 +4,8 @@
 
 [![License - GPL-2.0-only](https://img.shields.io/badge/License-GPL--2.0--only-2ea44f?logo=GPL-2.0-only&logoColor=GPL-2.0-only)](https://stopsopa.github.io/gitignore_to_find/LICENSE.txt)
 
+> Looking for the standalone binary? Jump to [Third solution: standalone binary (Rust)](#third-solution-standalone-binary-rust) - [Installation](#installation)
+
 # What is this
 
 This is basically an experiment project attempting to transform rules from any .gitignore like file to set of arguments for `find` shell program to achieve the same result.
