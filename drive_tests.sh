@@ -30,6 +30,20 @@ _ROOT="${_PWD}";
 TESTDIR="${1}";
 TESTDIR_GIT="${TESTDIR}/git";
 
+# Optional: binary to test instead of gitignore.ts (see gitignore_filter below).
+# Tests run in another directory, so relative path is resolved against the directory we were launched from.
+if [[ -n "${GITIGNORE_TO_FIND_BIN}" ]]; then
+    if [[ "${GITIGNORE_TO_FIND_BIN}" != /* ]]; then
+        GITIGNORE_TO_FIND_BIN="${_ROOT}/${GITIGNORE_TO_FIND_BIN}"
+    fi
+
+    if [[ ! -x "${GITIGNORE_TO_FIND_BIN}" ]]; then
+        echo "${0} error: GITIGNORE_TO_FIND_BIN >${GITIGNORE_TO_FIND_BIN}< doesn't exist or is not executable"
+
+        exit 1
+    fi
+fi
+
 source "${TESTDIR}/../tools.sh";
 
 mkdir -p "${TESTDIR_GIT}";
@@ -102,12 +116,28 @@ EEE
 
 echo
 
+#
+# Filters stdin through the implementation under test.
+# By default it is gitignore.ts, but when env var GITIGNORE_TO_FIND_BIN is set
+# then that binary is used instead (rust version), e.g.:
+#
+#   GITIGNORE_TO_FIND_BIN="$(pwd)/rust/bin/arm64/gitignore_to_find" /bin/bash tests/test.sh
+#   /bin/bash rust/test.sh     # does the above with detected platform
+#
+function gitignore_filter {
+    if [[ -n "${GITIGNORE_TO_FIND_BIN}" ]]; then
+        "${GITIGNORE_TO_FIND_BIN}" ".gitignore"
+    else
+        NODE_OPTIONS= node "${_ROOT}/gitignore.ts" ".gitignore"
+    fi
+}
+
 FIND_OUTPUT="$(find . \( \
   -type d -name .git -prune \
 \) \
 -o \
 -type f \
--print | sed 's|^\./||' | NODE_OPTIONS= node "${_ROOT}/gitignore.ts" ".gitignore" | sort)"
+-print | sed 's|^\./||' | gitignore_filter | sort)"
 
 GIT_OUTPUT="$(git ls-files --others --exclude-standard | sort)"
 

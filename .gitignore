@@ -10,3 +10,6 @@ node_modules
 /__links/
 /rust/target/
 /rust/bin/
+/rust/dist/
+/rust/target/
+/rust/bin/

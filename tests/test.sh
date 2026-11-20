@@ -2,7 +2,11 @@
 # 
 # /bin/bash tests/test.sh
 # TEST=1 /bin/bash tests/test.sh
-# 
+#
+# By default tests gitignore.ts. To test rust binary instead point env var to it:
+# GITIGNORE_TO_FIND_BIN="rust/bin/arm64/gitignore_to_find" /bin/bash tests/test.sh
+# /bin/bash rust/test.sh     # does the above with detected platform
+#
 
 _SHELL="$(ps -p $$ -o comm=)"; # bash || sh || zsh
 _SHELL="$(basename ${_SHELL//-/})"

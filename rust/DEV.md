@@ -22,7 +22,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 /bin/bash rust/compile.sh
 
 # 4. test against real git
-/bin/bash rust/test/parity.sh
+/bin/bash rust/test.sh
 
 # 5. run it (replace arm64 with x64 on Intel/AMD machines)
 find . -type f | rust/bin/arm64/gitignore_to_find .gitignore
@@ -72,10 +72,18 @@ find . -type f | rust/bin/arm64/gitignore_to_find .gitignore
 ## Running Tests Locally
 
 ```sh
-/bin/bash rust/test/parity.sh
+/bin/bash rust/test.sh
 ```
 
-Builds a temporary git repo with fixture `.gitignore` and checks that the binary prints exactly the paths which `git check-ignore` does not report as ignored.
+Runs two things against the compiled binary:
+
+1. the shared suite from `tests/` - the same one `gitignore.ts` is tested with (`/bin/bash tests/test.sh`). Binary is injected through env var, which can be also done by hand:
+
+   ```sh
+   GITIGNORE_TO_FIND_BIN="rust/bin/arm64/gitignore_to_find" /bin/bash tests/test.sh
+   ```
+
+2. `rust/test/parity.sh` - builds a temporary git repo with fixture `.gitignore` and checks that the binary prints exactly the paths which `git check-ignore` does not report as ignored.
 
 ---
 
@@ -84,7 +92,7 @@ Builds a temporary git repo with fixture `.gitignore` and checks that the binary
 ### CI/CD Workflow Overview
 
 GitHub Actions pipeline `.github/workflows/rust.yml` handles automated building, testing, and release creation:
-- **Pushing code to any branch** (or opening a PR) triggers the CI test suite (`rust/compile.sh` and `rust/test/parity.sh`) on Linux x64 (`ubuntu-latest`) and builds cross-platform binaries to ensure build stability. It does **not** create any release.
+- **Pushing code to any branch** (or opening a PR) triggers the CI test suite (`rust/compile.sh` and `rust/test.sh`) on Linux x64 (`ubuntu-latest`) and builds cross-platform binaries to ensure build stability. It does **not** create any release.
 - **Pushing a git tag** triggers the CI test suite, compiles all binaries, and publishes a new **GitHub Release**.
 
 ### Target Platforms Built in CI/CD

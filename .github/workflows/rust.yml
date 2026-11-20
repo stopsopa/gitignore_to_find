@@ -25,8 +25,8 @@ jobs:
       - name: Compile binary
         run: /bin/bash rust/compile.sh
 
-      - name: Run parity test against git check-ignore
-        run: /bin/bash rust/test/parity.sh
+      - name: Run tests (shared tests/ suite + parity with git check-ignore)
+        run: /bin/bash rust/test.sh
 
   build-matrix:
     name: Build ${{ matrix.target }}
